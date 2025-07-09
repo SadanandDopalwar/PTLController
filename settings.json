@@ -1,0 +1,16 @@
+{
+    "database": {
+        "dbname": "sun",
+        "user": "postgres",
+        "password": "Nido@123",
+        "host": "localhost",
+        "port": "5432"
+    },
+    "machineid" : "c0173915-bd47-402a-8101-ffc3bff00754",
+    "log_file_path": "D:/MyFiles/nidologs/ptlcontroller.log",
+    "PTL_IP" : "192.168.6.105",
+    "PTL_PORT" : 5003,
+    "controllerport": 9023,
+    "IsMultiUser": true,
+    "MultiColors": "SG,SP"
+}
