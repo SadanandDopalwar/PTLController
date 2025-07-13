@@ -62,7 +62,7 @@ app = FastAPI()
 conf = {
     'bootstrap.servers': '127.0.0.1:9092',  # Kafka server
     'group.id': 'PTL-Controller-Consumer1',          # Consumer group (must be differnet for different machines)
-    'auto.offset.reset': 'earliest'         # Start from the earliest message
+    'auto.offset.reset': 'latest'         # Start from the earliest message
 }
 
 consumer = Consumer(conf)
