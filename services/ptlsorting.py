@@ -6,7 +6,7 @@ previousAction = ""
 map_last_command = {}
     
 async def formatptldata(action, logger, ptl_array, display, display_array):
-    if action in ['Round', 'Combo', 'Single', 'Closebag', 'Bagging']:
+    if action in ['Round', 'Combo', 'Single', 'Closebag']:
         logger.info("Checking Action")
         formatted_ptl_array = [f"{int(controllervalue):04d}{display}" for controllervalue in ptl_array]
     elif action == 'Mix':
@@ -55,6 +55,13 @@ async def get_command(uid, controllervalue, color, display, deviceid, conn, curs
     display_array = display.split(',')
     logger.info("display array: %s", display_array)
     formatted_ptl_array = await formatptldata(action, logger, ptl_array, display, display_array)
+    # if (action == 'Round' or action == 'Combo' or action == 'Single' or action == 'Closebag'):
+    #     logger.info("Checking Action")
+    #     formatted_ptl_array = [f"{int(controllervalue):04d}{display}" for controllervalue in ptl_array]
+    # else:
+    #     #action = mix (like onepharma)
+    #     formatted_ptl_array = [f"{int(ptl_array[i]):04d}{int(display_array[i]):05d}" for i in range(len(ptl_array))]  #for OnePharmacy, pass 4 digit for each ptl
+    # #formatted_ptl_array = [f"{int(controllervalue):04d}{display}" for controllervalue in ptl_array]
     
     logger.info("Formatting PTL Address Array: %s", formatted_ptl_array)
     formatted_ptl_address_array = ''.join(formatted_ptl_array)
@@ -82,9 +89,28 @@ async def get_command(uid, controllervalue, color, display, deviceid, conn, curs
         diffuse_command1 = formatted_interval_diffuse + formattedptllength + ptl_command2
         logger.info("Made Diffuse Command")
      
-    
+        if action == 'Round' and previousAction == 'Single':
+            logger.info("Action is Round and Previous Action is Single")
+            ptl_array_demo = await select_last_diffuse(logger, cursor, conn, deviceid, user_id)
+            if ptl_array_demo is not None:
+                logger.info("Last Diffuse Command: %s", ptl_array_demo)
+                ptl_format2 = ''.join(ptl_array_demo)
+                print("ptl_format:", ptl_format2)
+
+
+                #ptl_format1 = ''.join(previous_command)
+                logger.info("ptl_format2: %s", ptl_format2)
+                
+                format_ptl2 = ptl_format2
+                ptl_command2 = 'D' + format_ptl2
+                ptl_length2 = len(ptl_command2)
+                formatted_ptl_length2 = f"{ptl_length2:04d}"
+                formattedptllength2 = formatted_ptl_length2
+
+                diffuse_command = formatted_counter_diffuse + formattedptllength2 + ptl_command2
+            
     if previous_command and previousAction != 'Round' and ((action == 'Single') or action == 'Combo'): # previous and current type not = bagging
-        
+        logger.info("Action is Single")
         # ptl_array_demo = map_last_command[deviceid]
         # print(ptl_array_demo)
         # cursor.execute("SELECT lastdiffusecommand FROM devices WHERE deviceid = %s", (deviceid,))
@@ -120,7 +146,7 @@ async def get_command(uid, controllervalue, color, display, deviceid, conn, curs
     #print(deviceid)
     #closebag n delink process
     logger.info("Action: %s", action)
-    if not ((action == 'Closebag' or action == 'Bagging') and previousAction == 'Round' ):
+    if not (action == 'Closebag' and previousAction == 'Round'):
         if deviceid not in map_last_command:
             map_last_command[deviceid] = {}  # Ensure deviceid key exists
         
@@ -132,3 +158,4 @@ async def get_command(uid, controllervalue, color, display, deviceid, conn, curs
         return diffuse_command, regular_command, diffuse_command1
     else:
         return None, regular_command, diffuse_command1
+
